@@ -3,9 +3,7 @@ import React,{useState} from 'react'
 
 function DisplayData(){
     return(
-        <test>
             <h1>Conditional Rendering</h1>
-        </test>
     )
 }
 
