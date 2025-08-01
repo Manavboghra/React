@@ -12,7 +12,7 @@ export const ToolBar = () => {
     >
       <button
         style={{ margin: "33px" }}
-        onClick={(e) => {
+        onClick={() => {
           {
             alert("Uploading....");
           }
@@ -22,7 +22,7 @@ export const ToolBar = () => {
       </button>
       <button
         style={{ margin: "33px" }}
-        onClick={(e) => {
+        onClick={() => {
           {
             alert("Searching....");
           }
