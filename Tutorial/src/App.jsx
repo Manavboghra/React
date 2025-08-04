@@ -2,34 +2,34 @@ import { useState } from "react";
 import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 import "./App.css";
-import Header from "./components/Header";
-import { User } from "./components/User";
-import { MyButton } from "./components/MyButton";
-import { UserImage } from "./components/UserImage";
-import { List } from "./components/List";
-import { App1 } from "./components/Toggle";
-import { Greeting } from "./components/Greeting";
+import Header from "./components/Basics/Beginner/Header";
+import { User } from "./components/Basics/User/User";
+import { MyButton } from "./components/Basics/Button/MyButton";
+import { UserImage } from "./components/Basics/User/UserImage";
+import { List } from "./components/Basics/Beginner/List";
+import { App1 } from "./components/Basics/Button/Toggle";
+import { Greeting } from "./components/Basics/Props/Greeting";
 import Chatting from "./components/Hooks/UseEffect/Chatting";
 // import { ChatRoom } from "./components/Chatting";
-import Welcome from "./components/Welcome";
-import { DataExtract } from "./components/DataExtract";
-import Form from "./components/Form";
-import { Conditional } from "./components/Conditional";
+import Welcome from "./components/Basics/User/Welcome";
+import { DataExtract } from "./components/Basics/DataExtraction/DataExtract";
+import Form from "./components/Hooks/UseState/Form";
+import { Conditional } from "./components/Basics/Button/Conditional";
 // import { Render } from "./components/Render";
-import { Referencing } from "./components/Referencing";
-import { Counter } from "./components/Counter";
-import { Hover } from "./components/Hover";
-import { Wrapper } from "./components/Wrapper";
+import { Referencing } from "./components/Hooks/UseRef/Referencing";
+import { Counter } from "./components/Basics/Button/Counter";
+import { Hover } from "./components/Basics/Button/Hover";
+import { Wrapper } from "./components/Basics/Props/Wrapper";
 import { Event } from "./components/Events/Event";
-import { AlertButton } from "./components/AlertButton";
-import { AlertMessage, ToolBar } from "./components/ToolBar";
-import CaptureExample from "./components/Render";
-import Signup, { SignupDefault } from "./components/PreventDefault";
+import { AlertButton } from "./components/Basics/Button/AlertButton";
+import { AlertMessage, ToolBar } from "./components/Basics/Props/ToolBar";
+import CaptureExample from "./components/Basics/Props/Render";
+import Signup, { SignupDefault } from "./components/Basics/Props/PreventDefault";
 import { UpdatedFunc } from "./components/HOC/UpdatedFunc";
 import UserIdentity from "./components/HOC/UserIdentity";
 import ClickCounter from "./components/HOC/ClickCounter";
 import HoverCounter from "./components/HOC/HoverCounter";
-import NewHover  from "./components/HOC/NewHover";
+import NewHover from "./components/HOC/NewHover";
 import NewUpdatedFunc from "./components/HOC/NewUpdatedFunc";
 import { AsyncCounter } from "./components/HOC/AsyncCounter";
 import { Count } from "./components/Hooks/Reducer/count";
@@ -39,7 +39,7 @@ import { Timer } from "./components/Hooks/UseEffect/Timer";
 import { LimitedCounter } from "./components/Hooks/Reducer/counter";
 import { Message } from "./components/Hooks/UseEffect/Message";
 import { DataFetch } from "./components/Hooks/UseEffect/DataFetch";
-import Focus  from "./components/Hooks/UseRef/focus";
+import Focus from "./components/Hooks/UseRef/Focus";
 import { Remove } from "./components/Hooks/UseRef/Remove";
 import Page from "./components/Hooks/UseRef/Main";
 import { DoubleNumber } from "./components/Hooks/UseMemo/DoubleNumber";
@@ -52,6 +52,7 @@ import Profile from "./components/Hooks/Context/Profile";
 import SetUsername from "./components/Hooks/CustomHook/SetUsername";
 import { Sorting } from "./components/Hooks/UseMemo/Sorting";
 import { WithoutMemo } from "./components/Hooks/UseMemo/WithoutMemo";
+import { ColorChanger } from "./Tasks/Task1";
 // import { CounterReducer } from "./components/Hooks/Reducer/count";
 // import createconnection from "./components/Chat";
 
@@ -60,7 +61,7 @@ function App() {
     <>
       <div>
         {/* <Header /> */}
-        <User />
+        {/* <User /> */}
         {/* <MyButton/> */}
         {/* <UserImage/> */}
         {/* <List/> */}
@@ -76,13 +77,13 @@ function App() {
         {/* <Referencing/> */}
         {/* <Counter/> */}
         {/* <Hover/> */}
-        <Wrapper
+        {/* <Wrapper
           render={({ count, handleClick }) => (
             <>
               <Counter count={count} handleClick={handleClick} />
             </>
           )}
-        />
+        /> */}
         {/* <Wrapper
           render={({ count, handleClick }) => (
             <>
@@ -101,7 +102,7 @@ function App() {
         /> */}
         {/* <Event /> */}
         {/* <AlertButton/> */}
-        
+
         {/* <ToolBar/> */}
         {/* <AlertMessage/> */}
         {/* <CaptureExample/> */}
@@ -123,26 +124,23 @@ function App() {
         {/* <Message/> */}
         {/* <DataFetch/> */}
         {/* <Focus/> */}
-        <br/>
+        <br />
         {/* <Remove/> */}
         {/* <Page/> */}
         {/* <DoubleNumber/> */}
         {/* <Car/> */}
-        <Timer/>
+        <Timer />
         {/* <SetTime/> */}
         {/* <CountRender/> */}
         {/* <Profile/>
         <Footer/>
         <SetUsername/> */}
         {/* <Sorting numbers={[12,10,13,14,2]}/> */}
-        <WithoutMemo />
-        
-
-
+        {/* <WithoutMemo /> */}
+        <ColorChanger/>
       </div>
     </>
   );
 }
 
 export default App;
-
