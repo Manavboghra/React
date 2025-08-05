@@ -1,7 +1,7 @@
 import { useDataFetch } from "./useDataFetch";
 export const DataFetching = () => {
   const { data, isLoading } = useDataFetch(
-    "https://potterapi-fedeperin.vercel.app/en/characters"
+    "https://meowfacts.herokuapp.com/?count=3"
   );
   return (
     <div>
@@ -9,10 +9,10 @@ export const DataFetching = () => {
         "loading......"
       ) : (
         <ul>
+    
           {data.map((post, index) => (
             <li key={index}>
-              {`${post.index+1}: `}
-              {post.fullName}
+              {post}
             </li>
           ))}
         </ul>

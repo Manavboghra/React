@@ -15,6 +15,10 @@ import { ComponentA } from "./components/Hooks/Context/ComponentA";
 import { Practice4 } from "./components/Practice/Practice4";
 import Practice6 from "./components/Practice/Practice6";
 import { DataFetching } from "./components/Hooks/CustomHook/DataFetching";
+import StatusBar from "./Tasks/Task3";
+import { Toggle } from "./components/Hooks/CustomHook/Toggle";
+import { UserForm } from "./components/Hooks/CustomHook/UserForm";
+import { Practice7 } from "./components/Practice/Practice7";
 
 export const AppTrial = () => {
   return (
@@ -34,7 +38,11 @@ export const AppTrial = () => {
       <ComponentA/> */}
       {/* <Practice4/> */}
       {/* <Practice6/> */}
-      <DataFetching/>
+      {/* <DataFetching/> */}
+      {/* <StatusBar/> */}
+      {/* <Toggle/> */}
+      {/* <UserForm/> */}
+      {/* <Practice7/> */}
     </div>
   );
 };
