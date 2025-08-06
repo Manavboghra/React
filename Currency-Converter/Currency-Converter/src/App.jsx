@@ -1,78 +1,32 @@
-import { useState } from "react";
-import InputData from "./components/InputData";
-import { useFetchApi } from "./components/useFetchApi";
-export default function App() {
-  const [amount, setAmount] = useState(0);
-  const [from, setFrom] = useState("inr");
-  const [to, setTo] = useState("usd");
-  const [convertedAmount, setConvertedAmount] = useState(0);
+import { Outlet, useNavigate } from "react-router";
+import { CurrencyCalculator } from "./components/Content/CurrencyCalculator/CurrencyCalculator";
+import CurrencyConverter from "./components/Content/CurrencyConverter/CurrencyConverter";
+import { ReverseCalculator } from "./components/Content/ReverseCalculator/ReverseCalculator";
+import Footer from "./components/Footer/Footer";
+import Header from "./components/Header/Header";
+import Home from "./components/Home/Home";
+import { useEffect } from "react";
 
-  const currencyInfo = useFetchApi(from);
-  const options = Object.keys(currencyInfo);
-  console.log(options);
-  const swap = () => {
-    setFrom(to);
-    setTo(from);
-    setAmount(convertedAmount);
-    setConvertedAmount(amount);
-  };
-  const convert = () => {
-    setConvertedAmount(amount * currencyInfo[to]);
-  };
+export default function App() {
+    const navigate = useNavigate();
+
+  useEffect(() => {
+    // This checks the performance entries to see how the page was loaded.
+    const navigationEntries = performance.getEntriesByType("navigation");
+    
+    // If the page was reloaded, navigate to the home page.
+    if (navigationEntries.length > 0 && navigationEntries[0].type === 'reload') {
+      navigate('/Home');
+    }
+  }, [navigate]);
+  
 
   return (
-    <div
-      className="w-full h-screen flex flex-wrap justify-center items-center bg-cover bg-no-repeat"
-      style={{
-        backgroundImage: `url('https://img.freepik.com/free-photo/abstract-uv-ultraviolet-light-composition_23-2149243965.jpg?semt=ais_hybrid&w=740&q=80')`,
-      }}
-    >
-      <div className="w-full">
-        <div className="w-full max-w-md mx-auto border border-gray-60 rounded-lg p-5 backdrop-blur-sm bg-white/30">
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              convert();
-            }}
-          >
-            <div className="w-full mb-1">
-              <InputData
-                label="From"
-                amount={amount}
-                currencyOptiones={options}
-                onAmountChange={(amount) => setAmount(amount)}
-                selectCurrency={from}
-                onCurrencyChange={(currency) => setFrom(currency)}
-              />
-            </div>
-            <div className="relative w-full h-0.5">
-              <button
-                type="button"
-                className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 border-2 border-white rounded-md bg-blue-600 text-white px-2 py-0.5"
-                onClick={swap}
-              >
-                swap
-              </button>
-            </div>
-            <div className="w-full mt-1 mb-4">
-              <InputData
-                label="To"
-                amount={convertedAmount}
-                currencyOptiones={options}
-                onCurrencyChange={(currency) => setTo(currency)}
-                selectCurrency={to}
-                amountDisable
-              />
-            </div>
-            <button
-              type="submit"
-              className="w-full bg-blue-600 text-white px-4 py-3 rounded-lg"
-            >
-              Convert {from.toUpperCase()} to {to.toUpperCase()}
-            </button>
-          </form>
-        </div>
-      </div>
+    <div>
+      <Header/>
+      <Outlet/>
+      <Footer/>
+     
     </div>
   );
 }
