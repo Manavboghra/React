@@ -57,6 +57,10 @@ export const ProductList = () => {
     return setProducts(deleteData);
   };
 
+  const onClose = () => {
+    setIsToggle(false);
+  };
+
   const handleCreateItem = () => {
     setIsToggle(!isToggle);
     const newProduct = {
@@ -86,35 +90,68 @@ export const ProductList = () => {
             Product List
           </div>
         )}
-        <div className="w-full max-w-md mx-auto p-6 bg-white rounded-xl shadow-md mb-5">
-          <div className="flex items-center justify-center gap-4">
-            <input
-              id="search"
-              type="text"
-              placeholder="Search for an item..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="block w-full px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
-            />
-            <button
-              className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md whitespace-nowrap transition duration-200"
-              onClick={handleCreateItem}
-            >
-              Create Item
-            </button>
-            {isToggle && (
-              <CreateTask
-                products={products}
-                setProducts={setProducts}
-              />
-            )}
-          </div>
-        </div>
+        <div className="w-full max-w-2xl mx-auto p-6 bg-white rounded-xl shadow-md mb-5">
+  <div className="flex items-start justify-between gap-4">
+    <div className="relative flex-1">
+      <input
+        id="search"
+        type="text"
+        placeholder="Search for an item..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        autoComplete="off"
+        className="block w-full px-5 py-3 text-lg text-gray-700 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
+      />
 
+      {search && (
+        <div className="absolute left-0 w-full mt-2 bg-white rounded-lg shadow-lg border border-gray-200 max-h-80 overflow-auto z-20">
+          {filteredProducts.length > 0 ? (
+            filteredProducts.map((product) => (
+              <Link
+                key={product.id}
+                to={`/products/${product.id}`}
+                className="flex items-center p-4 hover:bg-gray-100 transition"
+              >
+                <img
+                  src={product.thumbnail}
+                  alt={product.title}
+                  className="w-16 h-16 object-cover rounded mr-4"
+                />
+                <div>
+                  <div className="font-semibold text-lg">{product.title}</div>
+                  <div className="text-gray-600 text-md">${product.price}</div>
+                </div>
+              </Link>
+            ))
+          ) : (
+            <div className="p-4 text-gray-500 text-lg">No products found.</div>
+          )}
+        </div>
+      )}
+    </div>
+
+    <div className="flex items-center">
+      <button
+        className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-5 rounded-md whitespace-nowrap transition duration-200 shadow-md min-w-[140px]"
+        onClick={handleCreateItem}
+      >
+        Create Item
+      </button>
+    </div>
+  </div>
+
+  {isToggle && (
+    <CreateTask
+      onClose={onClose}
+      products={products}
+      setProducts={setProducts}
+    />
+  )}
+</div>
       </div>
 
       <div className="flex flex-wrap justify-center gap-4 mb-7">
-        {(search ? filteredProducts : products).map((product) => (
+        {products.map((product) => (
           <div key={product.id} className="flex flex-col items-center">
             <article className="w-80 border p-4 rounded-lg shadow-md hover:shadow-xl transition-shadow bg-white">
               <div className="flex justify-between items-center mb-2">
@@ -167,14 +204,6 @@ export const ProductList = () => {
           </div>
         ))}
       </div>
-      {filteredProducts.length === 0 && !isLoading && (
-        <div className="text-center py-16 bg-white rounded-xl shadow-md mt-8">
-          <h2 className="text-2xl font-semibold text-gray-600">
-            No products found
-          </h2>
-          <p className="text-gray-500 mt-2">Try adjusting your search.</p>
-        </div>
-      )}
     </div>
   );
 };
