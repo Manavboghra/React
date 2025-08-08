@@ -1,18 +1,8 @@
-import React, { useEffect, useState } from "react";
-import { useParams, Link, useLoaderData } from "react-router";
+import {  Link, useLoaderData } from "react-router";
+
 
 export const ProductDetail = () => {
-  //   const [product, setProduct] = useState(null);
-
   const product = useLoaderData();
-  // const { productId } = useParams();
-
-  //   useEffect(() => {
-  //     fetch(`https://dummyjson.com/products/${productId}`)
-  //       .then((res) => res.json())
-  //       .then((data) => setProduct(data));
-  //   }, [productId]);
-
   if (!product) {
     return <div>Loading...</div>;
   }

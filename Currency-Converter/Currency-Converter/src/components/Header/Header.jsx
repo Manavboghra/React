@@ -41,6 +41,16 @@ const Header = () => {
             Denominator
           </NavLink>
           <NavLink
+            to={"/Reverse"}
+            className={({ isActive }) =>
+              `${
+                isActive ? "text-orange-500" : "text-gray-300"
+              }   hover:text-blue-400 transition-colors`
+            }
+          >
+            Reverse
+          </NavLink> 
+           <NavLink
             to={"/products"}
             className={({ isActive }) =>
               `${

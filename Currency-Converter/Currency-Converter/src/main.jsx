@@ -1,9 +1,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
-import App1 from "./App1.jsx";
 import {
-  BrowserRouter,
   createBrowserRouter,
   RouterProvider,
 } from "react-router";
@@ -12,6 +10,9 @@ import CurrencyConverter from "./components/Content/CurrencyConverter/CurrencyCo
 import { CurrencyCalculator } from "./components/Content/CurrencyCalculator/CurrencyCalculator.jsx";
 import { ReverseCalculator } from "./components/Content/ReverseCalculator/ReverseCalculator.jsx";
 import Home from "./components/Home/Home.jsx";
+import { ProductDetail } from "./components/Content/Products/ProductDetail.jsx";
+import { ProductList } from "./components/Content/Products/ProductList.jsx";
+import { ProductDetailLoader } from "./components/Content/Products/ProductDetail.jsx";
 
 const router = createBrowserRouter([
   {
@@ -20,7 +21,6 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        path: "Home",
         element: <Home />,
       },
       {
@@ -34,6 +34,16 @@ const router = createBrowserRouter([
       {
         path: "Reverse",
         element: <ReverseCalculator />,
+      },
+      {
+        // loader:ProductListLoader,
+        path: "products",
+        element: <ProductList />,
+      },
+      {
+        loader: ProductDetailLoader,
+        path: "/products/:productId",
+        element: <ProductDetail />,
       },
     ],
   },
