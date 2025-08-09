@@ -10,6 +10,8 @@ export const ProductList = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [isToggle, setIsToggle] = useState(false);
+  const [isToggleCancel, setIsToggleCancel] = useState(false);
+  const [deleteId, setDeleteId] = useState(null);
 
   useEffect(() => {
     setIsLoading(true);
@@ -52,9 +54,20 @@ export const ProductList = () => {
     setProducts(changePrice);
   };
 
-  const handleDelete = (productId) => {
-    const deleteData = products.filter((product) => product.id !== productId);
-    return setProducts(deleteData);
+  const handleDeleteClick = (productId) => {
+    setDeleteId(productId);
+    setIsToggleCancel(true);
+  };
+
+  const confirmDelete = () => {
+    setProducts(products.filter((product) => product.id !== deleteId));
+    setIsToggleCancel(false);
+    setDeleteId(null);
+  };
+
+  const cancelDelete = () => {
+    setIsToggleCancel(false);
+    setDeleteId(null);
   };
 
   const onClose = () => {
@@ -91,63 +104,69 @@ export const ProductList = () => {
           </div>
         )}
         <div className="w-full max-w-2xl mx-auto p-6 bg-white rounded-xl shadow-md mb-5">
-  <div className="flex items-start justify-between gap-4">
-    <div className="relative flex-1">
-      <input
-        id="search"
-        type="text"
-        placeholder="Search for an item..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        autoComplete="off"
-        className="block w-full px-5 py-3 text-lg text-gray-700 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
-      />
+          <div className="flex items-start justify-between gap-4">
+            <div className="relative flex-1">
+              <input
+                id="search"
+                type="text"
+                placeholder="Search for an item..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                autoComplete="off"
+                className="block w-full px-5 py-3 text-lg text-gray-700 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
+              />
 
-      {search && (
-        <div className="absolute left-0 w-full mt-2 bg-white rounded-lg shadow-lg border border-gray-200 max-h-80 overflow-auto z-20">
-          {filteredProducts.length > 0 ? (
-            filteredProducts.map((product) => (
-              <Link
-                key={product.id}
-                to={`/products/${product.id}`}
-                className="flex items-center p-4 hover:bg-gray-100 transition"
-              >
-                <img
-                  src={product.thumbnail}
-                  alt={product.title}
-                  className="w-16 h-16 object-cover rounded mr-4"
-                />
-                <div>
-                  <div className="font-semibold text-lg">{product.title}</div>
-                  <div className="text-gray-600 text-md">${product.price}</div>
+              {search && (
+                <div className="absolute left-0 w-full mt-2 bg-white rounded-lg shadow-lg border border-gray-200 max-h-80 overflow-auto z-20">
+                  {filteredProducts.length > 0 ? (
+                    filteredProducts.map((product) => (
+                      <Link
+                        key={product.id}
+                        to={`/products/${product.id}`}
+                        className="flex items-center p-4 hover:bg-gray-100 transition"
+                      >
+                        <img
+                          src={product.thumbnail}
+                          alt={product.title}
+                          className="w-16 h-16 object-cover rounded mr-4"
+                        />
+                        <div>
+                          <div className="font-semibold text-lg">
+                            {product.title}
+                          </div>
+                          <div className="text-gray-600 text-md">
+                            ${product.price}
+                          </div>
+                        </div>
+                      </Link>
+                    ))
+                  ) : (
+                    <div className="p-4 text-gray-500 text-lg">
+                      No products found.
+                    </div>
+                  )}
                 </div>
-              </Link>
-            ))
-          ) : (
-            <div className="p-4 text-gray-500 text-lg">No products found.</div>
+              )}
+            </div>
+
+            <div className="flex items-center">
+              <button
+                className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-5 rounded-md whitespace-nowrap transition duration-200 shadow-md min-w-[140px]"
+                onClick={handleCreateItem}
+              >
+                Create Item
+              </button>
+            </div>
+          </div>
+
+          {isToggle && (
+            <CreateTask
+              onClose={onClose}
+              products={products}
+              setProducts={setProducts}
+            />
           )}
         </div>
-      )}
-    </div>
-
-    <div className="flex items-center">
-      <button
-        className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-5 rounded-md whitespace-nowrap transition duration-200 shadow-md min-w-[140px]"
-        onClick={handleCreateItem}
-      >
-        Create Item
-      </button>
-    </div>
-  </div>
-
-  {isToggle && (
-    <CreateTask
-      onClose={onClose}
-      products={products}
-      setProducts={setProducts}
-    />
-  )}
-</div>
       </div>
 
       <div className="flex flex-wrap justify-center gap-4 mb-7">
@@ -158,9 +177,34 @@ export const ProductList = () => {
                 <span className="text-xs font-bold text-gray-500">
                   ID: {product.id}
                 </span>
+
+                {isToggleCancel && (
+                  <div className="fixed inset-0 backdrop-blur-xs flex justify-center items-center p-4 z-50 ">
+                    <div className="bg-white  p-6 rounded-lg border-2 border-gray-300 w-80">
+                      <h2 className="text-lg font-semibold mb-4">
+                        Confirm Deletion
+                      </h2>
+                      <p>Are you sure you want to delete this product?</p>
+                      <div className="flex justify-end mt-6 space-x-3">
+                        <button
+                          className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"
+                          onClick={confirmDelete}
+                        >
+                          Delete
+                        </button>
+                        <button
+                          className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded"
+                          onClick={cancelDelete}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
                 <button
                   className="bg-blue-400 hover:bg-blue-600 text-white font-bold w-6 h-6 flex items-center justify-center rounded-full"
-                  onClick={() => handleDelete(product.id)}
+                  onClick={() => handleDeleteClick(product.id)}
                 >
                   <span className="align-middle text-center text-sm">
                     &#x2715;
