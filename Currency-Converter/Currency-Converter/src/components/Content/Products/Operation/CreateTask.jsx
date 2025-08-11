@@ -1,4 +1,4 @@
-import React,{useState} from "react";
+import React, { useState } from "react";
 
 export const CreateTask = ({ products, setProducts, onClose }) => {
   const [createTitle, setCreateTitle] = useState("");
@@ -8,22 +8,21 @@ export const CreateTask = ({ products, setProducts, onClose }) => {
   const handleCreateTask = (e) => {
     e.preventDefault();
     const newProduct = {
-      id: products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1,
+      id: products.length > 0 ? Math.max(...products.map((p) => p.id)) + 1 : 1,
       title: createTitle,
-      price: Number(createPrice),
-      thumbnail: createThumbnail || "https://placehold.co/600x400/e2e8f0/e2e8f0?text=No+Image",
+      price: parseFloat(createPrice),
+      thumbnail:
+        createThumbnail ||
+        "https://media.istockphoto.com/id/1055079680/vector/black-linear-photo-camera-like-no-image-available.jpg?s=612x612&w=0&k=20&c=P1DebpeMIAtXj_ZbVsKVvg-duuL0v9DlrOZUvPG6UJk=",
     };
     setProducts([...products, newProduct]);
     setCreateTitle("");
     setCreatePrice("");
     setCreateThumbnail("");
     if (onClose) {
-      onClose(); 
+      onClose();
     }
   };
-
-
- 
 
   const handleCreateTitle = (e) => {
     setCreateTitle(e.target.value);
@@ -34,28 +33,51 @@ export const CreateTask = ({ products, setProducts, onClose }) => {
 
   const handleImageChange = (e) => {
     if (e.target.files && e.target.files[0]) {
-        setCreateThumbnail(URL.createObjectURL(e.target.files[0]));
+      setCreateThumbnail(URL.createObjectURL(e.target.files[0]));
     }
-  }
+  };
 
   return (
-    <div className="fixed inset-0 bg-[rgba(0,0,0,0.75)] flex justify-center items-center p-4 z-50" onClick={onClose}>
+    <div
+      className="fixed inset-0 backdrop-blur-md flex justify-center items-center p-4 z-50"
+      onClick={onClose}
+    >
       <form
         onSubmit={handleCreateTask}
         onClick={(e) => e.stopPropagation()}
         className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-8 space-y-6"
       >
         <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-gray-800">Create New Product</h1>
-            <button type="button" onClick={onClose} className="text-gray-400 hover:text-gray-600">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            </button>
+          <h1 className="text-2xl font-bold text-gray-800">
+            Create New Product
+          </h1>
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
         </div>
 
         <div>
-          <label htmlFor="text" className="block mb-1 text-sm font-medium text-gray-700">
+          <label
+            htmlFor="text"
+            className="block mb-1 text-sm font-medium text-gray-700"
+          >
             Name
           </label>
           <input
@@ -70,37 +92,73 @@ export const CreateTask = ({ products, setProducts, onClose }) => {
         </div>
 
         <div>
-          <label htmlFor="number" className="block mb-1 text-sm font-medium text-gray-700">
+          <label
+            htmlFor="number"
+            className="block mb-1 text-sm font-medium text-gray-700"
+          >
             Price
           </label>
-            <div className="relative">
-                <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">$</span>
-                <input
-                  id="number"
-                  type="number"
-                  value={createPrice}
-                  onChange={handleCreatePrice}
-                  placeholder="99.99"
-                  className="block w-full pl-7 pr-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-                />
-            </div>
+          <div className="relative">
+            <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">
+              $
+            </span>
+            <input
+              id="number"
+              type="number"
+              value={createPrice}
+              onChange={handleCreatePrice}
+              onKeyDown={(e) => {
+                if (e.key === "e" || e.key === "E") {
+                  e.preventDefault(); 
+                }
+              }}
+              placeholder="99.99"
+              className="block w-full pl-7 pr-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+            />
+          </div>
         </div>
 
         <div className="space-y-1">
-          <label htmlFor="imageUpload" className="block text-sm font-medium text-gray-700">Product Image</label>
+          <label
+            htmlFor="imageUpload"
+            className="block text-sm font-medium text-gray-700"
+          >
+            Product Image
+          </label>
           <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
             <div className="space-y-1 text-center">
-                <svg className="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
-                    <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-                <div className="flex text-sm text-gray-600 justify-center">
-                    <label htmlFor="imageUpload" className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
-                        <span>Upload a file</span>
-                        <input id="imageUpload" name="image" type="file" className="sr-only" accept="image/png, image/jpeg, image/gif" onChange={handleImageChange} />
-                    </label>
-                    <p className="pl-1">or drag and drop</p>
-                </div>
-                <p className="text-xs text-gray-500">PNG, JPG, GIF</p>
+              <svg
+                className="mx-auto h-12 w-12 text-gray-400"
+                stroke="currentColor"
+                fill="none"
+                viewBox="0 0 48 48"
+                aria-hidden="true"
+              >
+                <path
+                  d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+              <div className="flex text-sm text-gray-600 justify-center">
+                <label
+                  htmlFor="imageUpload"
+                  className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500"
+                >
+                  <span>Upload a file</span>
+                  <input
+                    id="imageUpload"
+                    name="image"
+                    type="file"
+                    className="sr-only"
+                    accept="image/png, image/jpeg, image/gif"
+                    onChange={handleImageChange}
+                  />
+                </label>
+                <p className="pl-1">or drag and drop</p>
+              </div>
+              <p className="text-xs text-gray-500">PNG, JPG, GIF</p>
             </div>
           </div>
         </div>
