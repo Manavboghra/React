@@ -19,19 +19,20 @@ export const ProductDetail = () => {
   {/* Main Product Section */}
   <div className="flex flex-col md:flex-row gap-10">
     {/* Product Image */}
-    <div className="w-full md:w-1/2">
+    <div className="w-full md:w-1/3 flex justify-center items-center">
       <img
         src={product.images[0]}
         alt={product.title}
         className="w-3/4 rounded-lg shadow-lg object-cover"
       />
+
+      
     </div>
 
     {/* Right Side - Product Info */}
     <div className="flex-1 space-y-6">
       {/* Product Card */}
       <div className="bg-white p-6 rounded-lg shadow-md space-y-4">
-        {/* Title */}
         <h1 className="text-4xl font-bold text-gray-900">{product.title}</h1>
 
         {/* Rating */}
@@ -123,6 +124,23 @@ export const ProductDetail = () => {
               {product.availabilityStatus}
             </p>
           </div>
+
+          {/* Return Policy */}
+          <div className="flex items-start">
+            <span
+              className={`material-icons mr-2 ${
+                product.returnPolicy.toLowerCase() == "no return policy"
+                  ? "text-red-500"
+                  : "text-green-500"
+              }`}
+            >
+              inventory_2
+            </span>
+            <p className="text-gray-700">
+              <span className="font-semibold">Return Policy:</span>{" "}
+              {product.returnPolicy}
+            </p>
+          </div>
         </div>
       </div>
     </div>
@@ -182,7 +200,23 @@ export const ProductDetail = () => {
       <p className="text-gray-500 italic">No reviews available.</p>
     )}
   </div>
+   {product.images && product.images.length > 0 && (
+              <div className="mt-4">
+                <h3 className="font-semibold mb-2">Product Images</h3>
+                <div className="grid grid-cols-2 gap-2">
+                  {product.images.map((image, index) => (
+                    <img
+                      key={index}
+                      src={image}
+                      alt={`Product Image ${index + 1}`}
+                      className="object-cover rounded-md"
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
 </div>
+
   )
 };
 
