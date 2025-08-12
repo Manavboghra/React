@@ -5,11 +5,19 @@ export const CreateTask = ({ products, setProducts, onClose }) => {
   const [createPrice, setCreatePrice] = useState("");
   const [previewUrl, setPreviewUrl] = useState(null);
 
+  const onCancelImage = () => {
+    setPreviewUrl(null);
+  };
+
   const handleCreateTask = (e) => {
     e.preventDefault();
     const newProduct = {
       id: products.length > 0 ? Math.max(...products.map((p) => p.id)) + 1 : 1,
       title: createTitle,
+      category: "Newly Added",
+      reviews: 0,
+      rating: 0,
+      discountPercentage: 0,
       price: parseFloat(createPrice),
       thumbnail:
         previewUrl ||
@@ -59,7 +67,8 @@ export const CreateTask = ({ products, setProducts, onClose }) => {
             type="button"
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600"
-          >&#x2715;
+          >
+            &#x2715;
           </button>
         </div>
 
@@ -76,6 +85,7 @@ export const CreateTask = ({ products, setProducts, onClose }) => {
             value={createTitle}
             onChange={handleCreateTitle}
             type="text"
+            required
             placeholder="e.g. Wireless Earbuds"
             className="block w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
           />
@@ -102,12 +112,13 @@ export const CreateTask = ({ products, setProducts, onClose }) => {
                   e.preventDefault();
                 }
               }}
+              required
               placeholder="99.99"
               className="block w-full pl-7 pr-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
             />
           </div>
         </div>
-
+        {/* Image Upload */}
         <div className="space-y-1">
           <label
             htmlFor="imageUpload"
@@ -115,35 +126,48 @@ export const CreateTask = ({ products, setProducts, onClose }) => {
           >
             Product Image
           </label>
-          <div className="mt-1 flex flex-col items-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
+          {previewUrl && (
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={onCancelImage}
+                className="text-gray-400 hover:text-gray-600 "
+              >
+                &#x2715;
+              </button>
+            </div>
+          )}
+
+          <div className="mt-1 flex flex-col items-center  border-2 border-gray-300 border-dashed rounded-md">
             <div className="space-y-1 text-center">
-
               {!previewUrl ? (
-                <div className="flex items-center justify-center text-sm text-gray-600 space-x-2">
-                  <label
-                    htmlFor="imageUpload"
-                    className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500 px-3 py-1"
-                  >
-                    <span>Upload a file or drag and drop</span>
-                    <input
-                      id="imageUpload"
-                      name="image"
-                      type="file"
-                      className="sr-only"
-                      accept="image/png, image/jpeg, image/gif"
-                      onChange={handleImageChange}
-                    />
-                  </label>
+                <label
+                  htmlFor="imageUpload"
+                  className="relative cursor-pointer bg-white rounded-md font-medium 
+             text-blue-600 hover:text-blue-500 focus-within:outline-none 
+             focus-within:ring-2 focus-within:ring-offset-2 
+             focus-within:ring-blue-500 flex flex-col items-center 
+             justify-center text-sm  space-y-2 w-[380px] h-[200px] "
+                >
+                  <span>Upload a file or drag and drop</span>
                   <p className="text-xs text-gray-500">(PNG, JPG, GIF)</p>
-                </div>
-              )
 
-              :(
-                <div className="mt-4 max-w-xs max-h-60 border border-gray-300 rounded overflow-hidden">
+                  <input
+                    id="imageUpload"
+                    name="image"
+                    type="file"
+                    accept="image/png, image/jpeg, image/gif"
+                    onChange={handleImageChange}
+                    required
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  />
+                </label>
+              ) : (
+                <div className="  w-[380px] h-[200px] border border-gray-300 rounded overflow-hidden">
                   <img
                     src={previewUrl}
                     alt="Preview"
-                    className="w-full h-full object-contain"
+                    className=""
                   />
                 </div>
               )}
