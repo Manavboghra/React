@@ -3,7 +3,6 @@ import React, { useState } from "react";
 export const CreateTask = ({ products, setProducts, onClose }) => {
   const [createTitle, setCreateTitle] = useState("");
   const [createPrice, setCreatePrice] = useState("");
-  const [createThumbnail, setCreateThumbnail] = useState("");
   const [previewUrl, setPreviewUrl] = useState(null);
 
   const handleCreateTask = (e) => {
@@ -13,13 +12,13 @@ export const CreateTask = ({ products, setProducts, onClose }) => {
       title: createTitle,
       price: parseFloat(createPrice),
       thumbnail:
-        createThumbnail ||
+        previewUrl ||
         "https://media.istockphoto.com/id/1055079680/vector/black-linear-photo-camera-like-no-image-available.jpg?s=612x612&w=0&k=20&c=P1DebpeMIAtXj_ZbVsKVvg-duuL0v9DlrOZUvPG6UJk=",
     };
     setProducts([...products, newProduct]);
     setCreateTitle("");
     setCreatePrice("");
-    setCreateThumbnail("");
+    setPreviewUrl("");
     if (onClose) {
       onClose();
     }
@@ -35,7 +34,6 @@ export const CreateTask = ({ products, setProducts, onClose }) => {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      // Create a temporary URL for the selected file
       const url = URL.createObjectURL(file);
       setPreviewUrl(url);
     } else {
@@ -61,21 +59,7 @@ export const CreateTask = ({ products, setProducts, onClose }) => {
             type="button"
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
+          >&#x2715;
           </button>
         </div>
 
@@ -133,15 +117,8 @@ export const CreateTask = ({ products, setProducts, onClose }) => {
           </label>
           <div className="mt-1 flex flex-col items-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
             <div className="space-y-1 text-center">
-              <svg
-                className="mx-auto h-0.5 w-12 text-gray-400"
-                stroke="currentColor"
-                fill="none"
-                viewBox="0 0 48 48"
-                aria-hidden="true"
-              ></svg>
 
-              {!previewUrl && (
+              {!previewUrl ? (
                 <div className="flex items-center justify-center text-sm text-gray-600 space-x-2">
                   <label
                     htmlFor="imageUpload"
@@ -159,9 +136,9 @@ export const CreateTask = ({ products, setProducts, onClose }) => {
                   </label>
                   <p className="text-xs text-gray-500">(PNG, JPG, GIF)</p>
                 </div>
-              )}
+              )
 
-              {previewUrl && (
+              :(
                 <div className="mt-4 max-w-xs max-h-60 border border-gray-300 rounded overflow-hidden">
                   <img
                     src={previewUrl}

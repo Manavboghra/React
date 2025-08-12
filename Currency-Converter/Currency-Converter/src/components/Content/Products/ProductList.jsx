@@ -19,15 +19,25 @@ export const ProductList = () => {
   const [maxPrice, setMaxPrice] = useState("");
   const [discount, setDiscount] = useState("");
 
+  const [total, setTotal] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const productsPerPage = 30;
+
   useEffect(() => {
     setIsLoading(true);
-    fetch(`https://dummyjson.com/products`)
+    const skip = (currentPage - 1) * productsPerPage;
+    fetch(
+      `https://dummyjson.com/products?limit=${productsPerPage}&skip=${skip}`
+    )
       .then((res) => res.json())
       .then((data) => {
         setIsLoading(false);
-        return setProducts(data.products);
+        setProducts(data.products);
+        setTotal(data.total);
       });
-  }, []);
+  }, [currentPage]);
+
+  const totalPages = Math.ceil(total / productsPerPage);
 
   const handleTitleChange = (productId, NewTitle) => {
     const changeTitle = products.map((product) => {
@@ -84,18 +94,20 @@ export const ProductList = () => {
   };
 
   const handleCategoryChange = (e) => {
-    const value = e.target.value;
-    setCategory(
-      (prev) =>
-        prev.includes(value)
-          ? prev.filter((c) => c !== value) // remove if already selected
-          : [...prev, value] // add if not selected
-    );
+    const { value, checked } = e.target;
+
+    setCategory((prev) => {
+      if (checked) {
+        return [...prev, value];
+      } else {
+        return prev.filter((cat) => cat !== value);
+      }
+    });
   };
 
   const handleSetPrice = (minPrice, maxPrice) => {
-    setMaxPrice(parseFloat(maxPrice));
-    setMinPrice(parseFloat(minPrice));
+    setMaxPrice(maxPrice);
+    setMinPrice(minPrice);
   };
 
   const handleDiscountChange = (e) => {
@@ -146,6 +158,33 @@ export const ProductList = () => {
     return list;
   };
 
+  const getNumberOfProducts = () => {
+    return getDisplayedProducts().length;
+  };
+
+  //   const getNumberOfFilteredProducts = (type) => {
+  //   return getDisplayedProducts().filter(
+  //     (item) => item.category === type
+  //   ).length;
+  // };
+
+  const getFilteredListWithoutCategory = () => {
+    let list = products;
+
+    if (discount !== "" && !isNaN(discount)) {
+      list = list.filter((product) => product.discountPercentage >= discount);
+    }
+
+    if (minPrice !== "" && !isNaN(minPrice)) {
+      list = list.filter((product) => product.price >= minPrice);
+    }
+    if (maxPrice !== "" && !isNaN(maxPrice)) {
+      list = list.filter((product) => product.price <= maxPrice);
+    }
+
+    return list;
+  };
+
   const getDropdownResults = () => {
     return getDisplayedProducts().filter((product) =>
       product.title.toLowerCase().includes(search.toLowerCase())
@@ -165,7 +204,9 @@ export const ProductList = () => {
       {/* Sidebar Filters */}
       <aside className="w-full md:w-64 bg-white shadow-md p-6 border-b md:border-r border-gray-200">
         <div className="flex flex-wrap items-center justify-between">
-          <h2 className="text-lg font-bold">Filters</h2>
+          <h2 className="text-lg font-bold">
+            Filters ({getNumberOfProducts()})
+          </h2>
           <button
             className="text-blue-500 hover:underline text-sm"
             onClick={handleClearAll}
@@ -179,19 +220,51 @@ export const ProductList = () => {
           <div>
             <h3 className="font-semibold mb-2">Category</h3>
             <div className="space-y-1 text-gray-700">
-              {["beauty", "furniture", "fragrances", "groceries"].map((product) => (
+              {[
+                "beauty",
+                "furniture",
+                "fragrances",
+                "groceries",
+                "kitchen-accessories",
+                "home-decoration",
+                "mens-shoes",
+                "mens-shirts",
+                "laptops",
+                "skin-care",
+                "motorcycle",
+                "mobile-accessories",
+                "sports-accessories",
+                "smartphones",
+                "womens-dresses",
+                "womens-bags",
+                "vehicle",
+                "tops",
+                "tablets",
+                "womens-watches",
+                "womens-shoes",
+                "womens-jewellery",
+              ].map((type) => (
                 <label
-                  key={product}
+                  key={type}
                   className="flex items-center space-x-2 capitalize"
                 >
                   <input
                     type="checkbox"
+                    name="category"
                     className="accent-blue-500"
-                    value={product}
-                    checked={category.includes(product)}
+                    value={type}
+                    checked={category.includes(type)}
                     onChange={handleCategoryChange}
                   />
-                  <span>{product}</span>
+                  <span>
+                    {type} (
+                    {
+                      getFilteredListWithoutCategory().filter(
+                        (item) => item.category === type
+                      ).length
+                    }
+                    )
+                  </span>
                 </label>
               ))}
             </div>
@@ -222,17 +295,17 @@ export const ProductList = () => {
           {/* Discount Filter */}
           <div>
             <h3 className="font-semibold mb-2">Discount Range</h3>
-            {[10, 20, 30].map((d) => (
-              <label key={d} className="flex items-center space-x-2">
+            {[10, 15, 20].map((count) => (
+              <label key={count} className="flex items-center space-x-2">
                 <input
                   name="discount"
                   type="radio"
                   className="accent-blue-500"
-                  value={d}
-                  checked={discount === d.toString()}
+                  value={count}
+                  checked={discount === count.toString()}
                   onChange={handleDiscountChange}
                 />
-                <span>{d}% and Above</span>
+                <span>{count}% and Above</span>
               </label>
             ))}
           </div>
@@ -313,59 +386,77 @@ export const ProductList = () => {
 
         {/* Products */}
         <div className="grid gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {getDisplayedProducts().length>0 ? (getDisplayedProducts().map((product) => (
-            <div key={product.id} className="bg-white shadow rounded p-4">
-              <div className="flex justify-between items-center text-xs text-gray-500 mb-2">
-                <span>Rating: {product.rating}</span>
-                <button
-                  onClick={() => handleDeleteClick(product.id)}
-                  className="material-symbols-outlined text-red-500"
-                >
-                  delete
-                </button>
-              </div>
-              <Link to={`/products/${product.id}`} target="_blank">
-                <img
-                  src={product.thumbnail}
-                  alt={product.title}
-                  className="w-full h-40 object-cover rounded mb-3"
-                />
-              </Link>
-              <input
-                type="text"
-                value={product.title}
-                onChange={(e) => handleTitleChange(product.id, e.target.value)}
-                className="font-semibold w-full border-none bg-gray-50 mb-2"
-              />
-              <div className="flex items-center space-x-2">
-                <div className="flex items-center space-x-1">
-                  <span className="font-semibold">$</span>
-                  <input
-                    type="text"
-                    value={product.price}
-                    onFocus={() => {
-                      setEditingId(product.id);
-                      setEditingSnapshot(getDisplayedProducts());
-                    }}
-                    onBlur={() => setEditingId(null)}
-                    onChange={(e) =>
-                      handlePriceChange(product.id, e.target.value)
-                    }
-                    className="w-16 border rounded px-1"
-                  />
+          {getDisplayedProducts().length > 0 ? (
+            getDisplayedProducts().map((product) => (
+              <div key={product.id} className="bg-white shadow rounded p-4">
+                <div className="flex justify-end items-center text-xs text-gray-500 mb-2">
+                  <button
+                    onClick={() => handleDeleteClick(product.id)}
+                    className="material-symbols-outlined text-red-500"
+                  >
+                    delete
+                  </button>
                 </div>
-                <span className="line-through text-gray-500 text-xs">$
-                  {((
-                    Number(product.price) /
-                    (1 - Number(product.discountPercentage) / 100)
-                  ).toFixed(2))}
-                </span>
-                <span className="text-green-600 text-xs font-semibold">
-                  ({product.discountPercentage}% OFF)
-                </span>
+                <Link to={`/products/${product.id}`} target="_blank">
+                  <img
+                    src={product.thumbnail}
+                    alt={product.title}
+                    className="w-full h-40 object-cover rounded mb-3"
+                  />
+                </Link>
+                <div className="flex items-center gap-1 text-gray-700">
+                  <span className="text-[15px]">{product.rating}</span>
+                  <span
+                    className="material-icons text-blue-500"
+                    style={{ fontSize: "17px" }}
+                  >
+                    star
+                  </span>
+                  <span>|</span>
+                  <span>{product.reviews.length}</span>
+                </div>
+
+                <input
+                  type="text"
+                  value={product.title}
+                  onChange={(e) =>
+                    handleTitleChange(product.id, e.target.value)
+                  }
+                  className="font-semibold w-full border-none bg-gray-50 mb-2"
+                />
+                <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-1">
+                    <span className="font-semibold">$</span>
+                    <input
+                      type="text"
+                      value={product.price}
+                      onFocus={() => {
+                        setEditingId(product.id);
+                        setEditingSnapshot(getDisplayedProducts());
+                      }}
+                      onBlur={() => setEditingId(null)}
+                      onChange={(e) =>
+                        handlePriceChange(product.id, e.target.value)
+                      }
+                      className="w-16 border rounded px-1"
+                    />
+                  </div>
+                  <span className="line-through text-gray-500 text-xs">
+                    $
+                    {(
+                      Number(product.price) /
+                      (1 - Number(product.discountPercentage) / 100)
+                    ).toFixed(2)}
+                  </span>
+                  <span className="text-green-600 text-xs font-semibold">
+                    ({product.discountPercentage}% OFF)
+                  </span>
+                </div>
               </div>
-            </div>
-          ))) : (<div className="text-gray-500 mt-4 mx-auto ">No Items Found</div>)}
+            ))
+          ) : (
+            <div className="text-gray-500 mt-4 mx-auto ">No Items Found</div>
+          )}
         </div>
 
         {/* Delete Modal */}
@@ -392,6 +483,7 @@ export const ProductList = () => {
           </div>
         )}
 
+        {/* Create Task */}
         {isToggle && (
           <CreateTask
             onClose={onClose}
@@ -399,6 +491,22 @@ export const ProductList = () => {
             setProducts={setProducts}
           />
         )}
+
+        <div className="pagination">
+          {[...Array(totalPages).keys()].map((num) => {
+            const pageNum = num + 1;
+            return (
+              <button
+              className="p-2 m-2 w-12 mt-10 border rounded bg-blue-500 text-white hover:bg-blue-600 transition duration-200"
+                key={pageNum}
+                onClick={() => setCurrentPage(pageNum)}
+                disabled={pageNum === currentPage}
+              >
+                {pageNum}
+              </button>
+            );
+          })}
+        </div>
       </main>
     </div>
   );
