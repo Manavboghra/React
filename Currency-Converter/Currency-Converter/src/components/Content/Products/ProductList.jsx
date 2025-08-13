@@ -1,54 +1,82 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 import { CreateTask } from "./Operation/CreateTask";
 
 export const ProductList = () => {
-  const [products, setProducts] = useState([]);
-  // const [isLoading, setIsLoading] = useState(true);
-  const [search, setSearch] = useState("");
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // === 1. Read filters from URL on load ===
+  const getFiltersFromURL = () => {
+    const params = new URLSearchParams(location.search);
+    return {
+      debouncedSearch: params.get("search") || "",
+      filterValue: params.get("sort") || "featured",
+      category: params.get("category") ? params.get("category").split(",") : [],
+      minPrice: Number(params.get("minPrice") || 0),
+      maxPrice: Number(params.get("maxPrice") || 100000),
+      discount: params.get("discount") || "",
+      currentPage: Number(params.get("page") || 1),
+    };
+  };
+
+  // State initialized from URL
+   const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [search, setSearch] = useState(getFiltersFromURL().search);
+  const [filterValue, setFilterValue] = useState(
+    getFiltersFromURL().filterValue
+  );
+  const [category, setCategory] = useState(getFiltersFromURL().category);
+  const [minPrice, setMinPrice] = useState(getFiltersFromURL().minPrice);
+  const [maxPrice, setMaxPrice] = useState(getFiltersFromURL().maxPrice);
+  const [discount, setDiscount] = useState(getFiltersFromURL().discount);
+  const [currentPage, setCurrentPage] = useState(
+    getFiltersFromURL().currentPage
+  );
+
   const [isToggle, setIsToggle] = useState(false);
   const [isToggleCancel, setIsToggleCancel] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
-  const [filterValue, setFilterValue] = useState("featured");
   const [editingId, setEditingId] = useState(null);
-  const [editingSnapshot, setEditingSnapshot] = useState([]);
-
-  const [category, setCategory] = useState([]);
-  const [minPrice, setMinPrice] = useState("");
-  const [maxPrice, setMaxPrice] = useState("");
-  const [discount, setDiscount] = useState("");
-
   const [tempPrice, setTempPrice] = useState("");
-
-  const [currentPage, setCurrentPage] = useState(1);
+  const [allProducts, setAllProducts] = useState([]);
   const productsPerPage = 30;
 
-  const [allProducts, setAllProducts] = useState([]);
-
-  //   const getSortParams = () => {
-  //   if (filterValue === "low-to-high")
-  //     return "sortBy=price&order=asc";
-  //   if (filterValue === "high-to-low")
-  //     return "sortBy=price&order=desc";
-  //   if (filterValue === "rating")
-  //     return "sortBy=rating&order=desc";
-  //   return ""; // for featured or default no sort
-  // };
-
+  // === 2. Keep filters in sync with URL ===
   useEffect(() => {
-    // setIsLoading(true);
+    const params = new URLSearchParams();
+    if (debouncedSearch) params.set("search", debouncedSearch);
+    if (filterValue !== "featured") params.set("sort", filterValue);
+    if (category.length > 0) params.set("category", category.join(","));
+    if (minPrice > 0) params.set("minPrice", minPrice);
+    if (maxPrice < 100000) params.set("maxPrice", maxPrice);
+    if (discount) params.set("discount", discount);
+    if (currentPage !== 1) params.set("page", currentPage);
+    navigate({ search: params.toString() }, { replace: true });
+  }, [
+    search,
+    filterValue,
+    category,
+    minPrice,
+    maxPrice,
+    discount,
+    currentPage,
+    navigate,
+  ]);
+
+  // === Fetch Products ===
+  useEffect(() => {
     fetch("https://dummyjson.com/products?limit=1000")
       .then((res) => res.json())
       .then((data) => {
         setAllProducts(data.products || []);
-        // setIsLoading(false);
       })
       .catch(() => {
         setAllProducts([]);
-        // setIsLoading(false);
       });
   }, []);
 
+  //Title change handler
   const handleTitleChange = (productId, newTitle) => {
     setAllProducts((prev) =>
       prev.map((product) =>
@@ -57,25 +85,28 @@ export const ProductList = () => {
     );
   };
 
-  const handlePriceChange = (id, value) => {
-    if (value === "" || value === "." || /^\d*\.?\d*$/.test(value)) {
-      setAllProducts((prev) =>
-        prev.map((p) => (p.id === id ? { ...p, price: value } : p))
-      );
-    }
-  };
+  // const handlePriceChange = (id, value) => {
+  //   if (value === "" || value === "." || /^\d*\.?\d*$/.test(value)) {
+  //     setAllProducts((prev) =>
+  //       prev.map((p) => (p.id === id ? { ...p, price: value } : p))
+  //     );
+  //   }
+  // };
 
+  //Delete task handler
   const handleDeleteClick = (productId) => {
     setDeleteId(productId);
     setIsToggleCancel(true);
   };
 
+  //Ask for delete
   const confirmDelete = () => {
-    setAllProducts((prev) => prev.filter((product) => product.id !== deleteId)); // update main data source
+    setAllProducts((prev) => prev.filter((product) => product.id !== deleteId));
     setIsToggleCancel(false);
     setDeleteId(null);
   };
 
+  //Decline to delete
   const cancelDelete = () => {
     setIsToggleCancel(false);
     setDeleteId(null);
@@ -85,31 +116,29 @@ export const ProductList = () => {
     setIsToggle(false);
   };
 
+  //Create Item
   const handleCreateItem = () => {
     setIsToggle(!isToggle);
   };
 
-  const handleFilter = (e) => {
-    setFilterValue(e.target.value);
-    setCurrentPage(1);
-  };
-
+  //Trigger when category Change
   const handleCategoryChange = (e) => {
     const { value, checked } = e.target;
-
-    setCategory((prev) => {
-      if (checked) {
-        return [...prev, value];
-      } else {
-        return prev.filter((cat) => cat !== value);
-      }
-    });
+    setCategory((prev) =>
+      checked ? [...prev, value] : prev.filter((c) => c !== value)
+    );
     setCurrentPage(1);
   };
 
-  const handleSetPrice = (minPrice, maxPrice) => {
-    setMaxPrice(maxPrice);
-    setMinPrice(minPrice);
+  //For filters
+  const handleSetPrice = (min, max) => {
+    setMinPrice(Number(min));
+    setMaxPrice(Number(max));
+    setCurrentPage(1);
+  };
+
+  const handleFilter = (e) => {
+    setFilterValue(e.target.value);
     setCurrentPage(1);
   };
 
@@ -118,46 +147,44 @@ export const ProductList = () => {
     setCurrentPage(1);
   };
 
+  //displayproduct
   const getDisplayedProducts = () => {
     let list = allProducts;
 
-    // Category filtering (supports multiple)
+    //for category filter
+
     if (category.length > 0) {
       list = list.filter((product) => category.includes(product.category));
     }
 
-    // Price filtering
-    if (minPrice !== "" && !isNaN(minPrice)) {
-      list = list.filter((product) => product.price >= minPrice);
-    }
-    if (maxPrice !== "" && !isNaN(maxPrice)) {
-      list = list.filter((product) => product.price <= maxPrice);
-    }
+    //for min-max price
+    if (!isNaN(minPrice)) list = list.filter((p) => p.price >= minPrice);
+    if (!isNaN(maxPrice)) list = list.filter((p) => p.price <= maxPrice);
 
-    // Discount filtering
-    if (discount !== "" && !isNaN(discount)) {
-      list = list.filter((product) => product.discountPercentage >= discount);
-    }
+    //for discount
+    if (discount) list = list.filter((p) => p.discountPercentage >= discount);
 
-    // Search
-    if (search.trim() !== "") {
-      list = list.filter((product) =>
-        product.title.toLowerCase().includes(search.toLowerCase())
+    //for searchItem
+    if (search.trim()) {
+      list = list.filter(
+        (p) =>
+          p.title.toLowerCase().includes(search.toLowerCase()) ||
+          p.tags.some((t) => t.toLowerCase().includes(search.toLowerCase()))
       );
     }
 
-    // Sorting
-    if (filterValue === "low-to-high") {
+    // for sorting
+    if (filterValue === "low-to-high")
       list = [...list].sort((a, b) => a.price - b.price);
-    } else if (filterValue === "high-to-low") {
+    if (filterValue === "high-to-low")
       list = [...list].sort((a, b) => b.price - a.price);
-    } else if (filterValue === "rating") {
+    if (filterValue === "rating")
       list = [...list].sort((a, b) => b.rating - a.rating);
-    }
 
     return list;
   };
 
+  //pagination
   const totalFiltered = getDisplayedProducts().length;
   const totalPages = Math.ceil(totalFiltered / productsPerPage);
 
@@ -177,6 +204,7 @@ export const ProductList = () => {
   //   ).length;
   // };
 
+  // display product for length
   const getFilteredListWithoutCategory = () => {
     let list = allProducts;
 
@@ -190,7 +218,15 @@ export const ProductList = () => {
     if (maxPrice !== "" && !isNaN(maxPrice)) {
       list = list.filter((product) => product.price <= maxPrice);
     }
-    
+    if (search.trim() !== "") {
+      list = list.filter(
+        (product) =>
+          product.title.toLowerCase().includes(search.toLowerCase()) ||
+          product.tags.some((tag) =>
+            tag.toLowerCase().includes(search.toLowerCase())
+          )
+      );
+    }
 
     return list;
   };
@@ -202,10 +238,11 @@ export const ProductList = () => {
   // };
 
   const handleClearAll = () => {
-    setMaxPrice("");
-    setMinPrice("");
+    setSearch("");
     setFilterValue("featured");
     setCategory([]);
+    setMinPrice(0);
+    setMaxPrice(100000);
     setDiscount("");
     setCurrentPage(1);
   };
@@ -214,6 +251,73 @@ export const ProductList = () => {
     (currentPage - 1) * productsPerPage,
     currentPage * productsPerPage
   );
+
+  // const handleCancelCategory = (value) => {
+  //   setCategory((prev) => {
+  //     if (value) {
+  //       return prev.filter((cat) => cat !== value);
+  //     } else {
+  //       return [...prev, value];
+  //     }
+  //   });
+  // };
+
+  // const handleCanceldiscount = () => {
+  //   setDiscount("");
+  // };
+
+  // const handleCancelPrice = () => {
+  //   setMinPrice(0);
+  //   setMaxPrice(100000);
+  // };
+
+  // Keyword type category
+  const handleCancelItems = (type, value) => {
+    if (type === "category") {
+      setCategory((prev) => prev.filter((cat) => cat !== value));
+    } else if (type === "discount") {
+      setDiscount("");
+    } else if (type === "price") {
+      setMinPrice(0);
+      setMaxPrice(100000);
+    }
+  };
+
+  // handle active filters
+  const activeFilters = [
+    ...category.map((c) => ({
+      label: c,
+      type: "category",
+      value: c,
+    })),
+    ...(discount
+      ? [
+          {
+            label: `${discount}% and above`,
+            type: "discount",
+            value: discount,
+          },
+        ]
+      : []),
+    ...(minPrice > 0 && maxPrice > 0
+      ? [
+          {
+            label: `$${minPrice} to $${maxPrice}`,
+            type: "price",
+            value: null,
+          },
+        ]
+      : []),
+  ];
+
+  useEffect(() => {
+    const delayDebounce = setTimeout(() => {
+      setDebouncedSearch(search); 
+      setCurrentPage(1);
+    }, 1000);
+
+    return () => clearTimeout(delayDebounce);
+  }, [search])
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-gray-50">
@@ -259,7 +363,7 @@ export const ProductList = () => {
                 "womens-watches",
                 "womens-shoes",
                 "womens-jewellery",
-                "Newly Added"
+                "Newly Added",
               ].map((type) => (
                 <label
                   key={type}
@@ -350,10 +454,7 @@ export const ProductList = () => {
               type="text"
               placeholder="Search..."
               value={search}
-              onChange={(e) => {
-                setSearch(e.target.value);
-                setCurrentPage(1);
-              }}
+              onChange={(e)=>setSearch(e.target.value)}
               className="block w-full border rounded px-4 py-2"
             />
             {/* {search && (
@@ -403,6 +504,25 @@ export const ProductList = () => {
             <option value="rating">Customer Rating</option>
           </select>
         </div>
+        {/* Category Bar */}
+        {activeFilters.length > 0 && (
+          <div className="p-2 m-2 flex flex-nowrap gap-3">
+            {activeFilters.map((filter, index) => (
+              <div
+                key={index}
+                className="text-gray-400 border-2 rounded-2xl ml-2 pt-0.5 pl-2 p-1"
+              >
+                {filter.label}
+                <button
+                  className="font-bold text-sm ml-2 mr-1 text-gray-400"
+                  onClick={() => handleCancelItems(filter.type, filter.value)}
+                >
+                  &#x2715;
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* Products */}
         <div className="grid gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -417,11 +537,12 @@ export const ProductList = () => {
                     delete
                   </button>
                 </div>
-                <Link to={`/products/${product.id}`} target="_blank">
+
+                <Link to={`/products/${product.id}`} target="_top">
                   <img
                     src={product.thumbnail}
                     alt={product.title}
-                    className="w-full h-40 object-cover rounded mb-3"
+                    className="w-full h-72 object-cover rounded mb-3"
                   />
                 </Link>
                 <div className="flex items-center gap-1 text-gray-700">
@@ -433,7 +554,7 @@ export const ProductList = () => {
                     star
                   </span>
                   <span>|</span>
-                  <span>{product.reviews?.length??0}</span>
+                  <span>{product.reviews?.length ?? 0}</span>
                 </div>
 
                 <input
@@ -479,6 +600,14 @@ export const ProductList = () => {
                     ({product.discountPercentage}% OFF)
                   </span>
                 </div>
+
+                <div className="pt-5">
+                  {product.stock < 20 && (
+                    <span className="px-2 py-1 text-xs font-bold text-orange-600 bg-red-100 border border-red-200 rounded-full">
+                      Only Few Left
+                    </span>
+                  )}
+                </div>
               </div>
             ))
           ) : (
@@ -518,11 +647,62 @@ export const ProductList = () => {
             setProducts={setAllProducts}
           />
         )}
-        <div className="pagination">
-          <div className="pagination">
-            {[...Array(totalPages).keys()].map((num) => {
+        <hr className="mt-28 text-gray-200" />
+
+        {totalPages > 1 && (
+          <div className="pagination m-0 p-0">
+            <div className="align-middle text-center">
+              <button
+                className=" ml-2 font-[600] text-lg "
+                onClick={() => setCurrentPage(1)}
+              >
+                {" "}
+                <div className="p-0 m-0">
+                  <span class="material-symbols-outlined">
+                    keyboard_double_arrow_left
+                  </span>
+                </div>
+                Page:1
+              </button>
+              <button
+                className="p-2 m-10 font-[600] text-lg rounded-md border-1 border-gray-300 h-13 w-40 bg-white"
+                onClick={() => {
+                  if (currentPage <= totalPages + 1 - currentPage) {
+                    setCurrentPage(1);
+                  } else {
+                    setCurrentPage((prev) => prev - 1);
+                  }
+                }}
+              >
+                <span className="material-symbols-outlined align-middle">
+                  arrow_back_ios
+                </span>
+                Previous
+              </button>
+              <span className="">
+                {" "}
+                Page {currentPage} of {totalPages}
+              </span>
+
+              <button
+                className="p-2 m-10 font-[600] text-lg rounded-md border-1 border-gray-300 h-13 w-30 bg-white"
+                onClick={() => {
+                  if (currentPage > totalPages - 1) {
+                    setCurrentPage(totalPages);
+                  } else {
+                    setCurrentPage((prev) => prev + 1);
+                  }
+                }}
+              >
+                Next
+                <span class="material-symbols-outlined align-middle">
+                  arrow_forward_ios
+                </span>
+              </button>
+            </div>
+            {/* {[...Array(totalPages).keys()].map((num) => {
               const pageNum = num + 1;
-              return (
+              return (<>
                 <button
                   key={pageNum}
                   onClick={() => setCurrentPage(pageNum)}
@@ -531,11 +711,11 @@ export const ProductList = () => {
                 >
                   {pageNum}
                 </button>
-                
+                </>
               );
-            })}
+            })} */}
           </div>
-        </div>
+        )}
       </main>
     </div>
   );
@@ -543,4 +723,4 @@ export const ProductList = () => {
 // https://dummyjson.com/products/search?q=phone
 // fetch('https://dummyjson.com/products?sortBy=title&order=asc')
 // https://dummyjson.com/docs/products#products-add
-// 'https://dummyjson.com/products/category/smartphones'
+// 'https://dummyjson.com/products/category/  '

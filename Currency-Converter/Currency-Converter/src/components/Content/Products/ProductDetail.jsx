@@ -9,12 +9,12 @@ export const ProductDetail = () => {
   return (
     <div className="p-8 bg-gray-50 min-h-screen">
       {/* Back Link */}
-      <Link
+      {/* <Link
         to="/products"
         className="text-blue-500 hover:underline mb-6 inline-block"
       >
         ← Back to Products
-      </Link>
+      </Link> */}
 
       {/* Main Product Section */}
       <div className="flex flex-col md:flex-row gap-10">
