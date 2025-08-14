@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { XCircle } from "react-feather";
 
 export const CreateTask = ({ products, setProducts, onClose }) => {
   const [createTitle, setCreateTitle] = useState("");
@@ -63,13 +64,9 @@ export const CreateTask = ({ products, setProducts, onClose }) => {
           <h1 className="text-2xl font-bold text-gray-800">
             Create New Product
           </h1>
-          <button
-            type="button"
+          <XCircle  type="button"
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600"
-          >
-            &#x2715;
-          </button>
+            className="text-red-600  hover:text-gray-600"/>
         </div>
 
         <div>
@@ -128,13 +125,10 @@ export const CreateTask = ({ products, setProducts, onClose }) => {
           </label>
           {previewUrl && (
             <div className="flex justify-end">
-              <button
-                type="button"
-                onClick={onCancelImage}
-                className="text-gray-400 hover:text-gray-600 "
-              >
-                &#x2715;
-              </button>
+              <XCircle  type="button"
+              size={20}
+            onClick={onCancelImage}
+            className="text-red-600 hover:text-gray-600"/>
             </div>
           )}
 

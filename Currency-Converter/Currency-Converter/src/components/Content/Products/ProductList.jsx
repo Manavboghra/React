@@ -1,16 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
 import { CreateTask } from "./Operation/CreateTask";
+import { useDebounce } from "./Hook/useDebounce"; // Import hook
+import { Search, Trash2, ChevronLeft, ChevronRight, ChevronsLeft, Star} from 'react-feather';
 
 export const ProductList = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // === 1. Read filters from URL on load ===
+  // Read initial filters
   const getFiltersFromURL = () => {
     const params = new URLSearchParams(location.search);
     return {
-      debouncedSearch: params.get("search") || "",
+      search: params.get("search") || "",
       filterValue: params.get("sort") || "featured",
       category: params.get("category") ? params.get("category").split(",") : [],
       minPrice: Number(params.get("minPrice") || 0),
@@ -20,19 +22,16 @@ export const ProductList = () => {
     };
   };
 
-  // State initialized from URL
-   const [debouncedSearch, setDebouncedSearch] = useState("");
+  // State
   const [search, setSearch] = useState(getFiltersFromURL().search);
-  const [filterValue, setFilterValue] = useState(
-    getFiltersFromURL().filterValue
-  );
+  const debouncedSearch = useDebounce(search, 500); // ✅ debounce only the search term
+
+  const [filterValue, setFilterValue] = useState(getFiltersFromURL().filterValue);
   const [category, setCategory] = useState(getFiltersFromURL().category);
   const [minPrice, setMinPrice] = useState(getFiltersFromURL().minPrice);
   const [maxPrice, setMaxPrice] = useState(getFiltersFromURL().maxPrice);
   const [discount, setDiscount] = useState(getFiltersFromURL().discount);
-  const [currentPage, setCurrentPage] = useState(
-    getFiltersFromURL().currentPage
-  );
+  const [currentPage, setCurrentPage] = useState(getFiltersFromURL().currentPage);
 
   const [isToggle, setIsToggle] = useState(false);
   const [isToggleCancel, setIsToggleCancel] = useState(false);
@@ -42,8 +41,24 @@ export const ProductList = () => {
   const [allProducts, setAllProducts] = useState([]);
   const productsPerPage = 30;
 
+  // Search input handler (instant feedback in UI)
+  const handleSearch = (e) => {
+    setSearch(e.target.value);
+    setCurrentPage(1);
+  };
+
+
+// useEffect(() => {
+//   const timer = setTimeout(() => {
+//     setSearch(debouncing);
+//     setCurrentPage(1)
+//   }, 1000);
+//     return () => clearTimeout(timer); 
+// }, [debouncing]);
+
+
   // === 2. Keep filters in sync with URL ===
-  useEffect(() => {
+ useEffect(() => {
     const params = new URLSearchParams();
     if (debouncedSearch) params.set("search", debouncedSearch);
     if (filterValue !== "featured") params.set("sort", filterValue);
@@ -52,9 +67,10 @@ export const ProductList = () => {
     if (maxPrice < 100000) params.set("maxPrice", maxPrice);
     if (discount) params.set("discount", discount);
     if (currentPage !== 1) params.set("page", currentPage);
+
     navigate({ search: params.toString() }, { replace: true });
   }, [
-    search,
+    debouncedSearch, // 🔹 Debounced value here
     filterValue,
     category,
     minPrice,
@@ -64,7 +80,7 @@ export const ProductList = () => {
     navigate,
   ]);
 
-  // === Fetch Products ===
+  // === Fetch data once ===
   useEffect(() => {
     fetch("https://dummyjson.com/products?limit=1000")
       .then((res) => res.json())
@@ -76,6 +92,33 @@ export const ProductList = () => {
       });
   }, []);
 
+  // === Filtering function (use debouncedSearch instead of search) ===
+  const getDisplayedProducts = () => {
+    let list = allProducts;
+
+    if (category.length > 0) {
+      list = list.filter((product) => category.includes(product.category));
+    }
+    if (!isNaN(minPrice)) list = list.filter((p) => p.price >= minPrice);
+    if (!isNaN(maxPrice)) list = list.filter((p) => p.price <= maxPrice);
+    if (discount) list = list.filter((p) => p.discountPercentage >= discount);
+
+    // Apply debounced search
+    if (debouncedSearch.trim()) {
+      list = list.filter(
+        (p) =>
+          p.title.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+          p.tags.some((t) => t.toLowerCase().includes(debouncedSearch.toLowerCase()))
+      );
+    }
+
+    if (filterValue === "low-to-high") list = [...list].sort((a, b) => a.price - b.price);
+    if (filterValue === "high-to-low") list = [...list].sort((a, b) => b.price - a.price);
+    if (filterValue === "rating") list = [...list].sort((a, b) => b.rating - a.rating);
+
+    return list;
+  };
+
   //Title change handler
   const handleTitleChange = (productId, newTitle) => {
     setAllProducts((prev) =>
@@ -84,14 +127,6 @@ export const ProductList = () => {
       )
     );
   };
-
-  // const handlePriceChange = (id, value) => {
-  //   if (value === "" || value === "." || /^\d*\.?\d*$/.test(value)) {
-  //     setAllProducts((prev) =>
-  //       prev.map((p) => (p.id === id ? { ...p, price: value } : p))
-  //     );
-  //   }
-  // };
 
   //Delete task handler
   const handleDeleteClick = (productId) => {
@@ -148,42 +183,7 @@ export const ProductList = () => {
   };
 
   //displayproduct
-  const getDisplayedProducts = () => {
-    let list = allProducts;
-
-    //for category filter
-
-    if (category.length > 0) {
-      list = list.filter((product) => category.includes(product.category));
-    }
-
-    //for min-max price
-    if (!isNaN(minPrice)) list = list.filter((p) => p.price >= minPrice);
-    if (!isNaN(maxPrice)) list = list.filter((p) => p.price <= maxPrice);
-
-    //for discount
-    if (discount) list = list.filter((p) => p.discountPercentage >= discount);
-
-    //for searchItem
-    if (search.trim()) {
-      list = list.filter(
-        (p) =>
-          p.title.toLowerCase().includes(search.toLowerCase()) ||
-          p.tags.some((t) => t.toLowerCase().includes(search.toLowerCase()))
-      );
-    }
-
-    // for sorting
-    if (filterValue === "low-to-high")
-      list = [...list].sort((a, b) => a.price - b.price);
-    if (filterValue === "high-to-low")
-      list = [...list].sort((a, b) => b.price - a.price);
-    if (filterValue === "rating")
-      list = [...list].sort((a, b) => b.rating - a.rating);
-
-    return list;
-  };
-
+  
   //pagination
   const totalFiltered = getDisplayedProducts().length;
   const totalPages = Math.ceil(totalFiltered / productsPerPage);
@@ -197,12 +197,6 @@ export const ProductList = () => {
   const getNumberOfProducts = () => {
     return getDisplayedProducts().length;
   };
-
-  //   const getNumberOfFilteredProducts = (type) => {
-  //   return getDisplayedProducts().filter(
-  //     (item) => item.category === type
-  //   ).length;
-  // };
 
   // display product for length
   const getFilteredListWithoutCategory = () => {
@@ -231,12 +225,6 @@ export const ProductList = () => {
     return list;
   };
 
-  // const getDropdownResults = () => {
-  //   return getDisplayedProducts().filter((product) =>
-  //     product.title.toLowerCase().includes(search.toLowerCase())
-  //   );
-  // };
-
   const handleClearAll = () => {
     setSearch("");
     setFilterValue("featured");
@@ -251,25 +239,6 @@ export const ProductList = () => {
     (currentPage - 1) * productsPerPage,
     currentPage * productsPerPage
   );
-
-  // const handleCancelCategory = (value) => {
-  //   setCategory((prev) => {
-  //     if (value) {
-  //       return prev.filter((cat) => cat !== value);
-  //     } else {
-  //       return [...prev, value];
-  //     }
-  //   });
-  // };
-
-  // const handleCanceldiscount = () => {
-  //   setDiscount("");
-  // };
-
-  // const handleCancelPrice = () => {
-  //   setMinPrice(0);
-  //   setMaxPrice(100000);
-  // };
 
   // Keyword type category
   const handleCancelItems = (type, value) => {
@@ -309,15 +278,6 @@ export const ProductList = () => {
         ]
       : []),
   ];
-
-  useEffect(() => {
-    const delayDebounce = setTimeout(() => {
-      setDebouncedSearch(search); 
-      setCurrentPage(1);
-    }, 1000);
-
-    return () => clearTimeout(delayDebounce);
-  }, [search])
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-gray-50">
@@ -435,17 +395,6 @@ export const ProductList = () => {
 
       {/* Main Content */}
       <main className="flex-1 p-4 md:p-6">
-        {/* Loading */}
-        {/* {isLoading ? (
-          <div className="flex flex-col justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500 mb-4"></div>
-            <h1 className="text-2xl font-semibold">Loading...</h1>
-          </div>
-        ) : (
-          <div className="text-center text-3xl font-bold mb-6">
-            Product List
-          </div>
-        )} */}
 
         {/* Search / Create / Sort */}
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between mb-5">
@@ -454,36 +403,9 @@ export const ProductList = () => {
               type="text"
               placeholder="Search..."
               value={search}
-              onChange={(e)=>setSearch(e.target.value)}
+              onChange={handleSearch}
               className="block w-full border rounded px-4 py-2"
             />
-            {/* {search && (
-              <div className="absolute left-0 top-full w-full bg-white shadow-lg rounded mt-1 z-10 max-h-60 overflow-auto">
-                {getDropdownResults().length > 0 ? (
-                  getDropdownResults().map((product) => (
-                    <Link
-                      key={product.id}
-                      to={`/products/${product.id}`}
-                      className="flex items-center p-2 hover:bg-gray-100"
-                    >
-                      <img
-                        src={product.thumbnail}
-                        alt={product.title}
-                        className="w-10 h-10 object-cover rounded mr-3"
-                      />
-                      <div>
-                        <div className="font-medium">{product.title}</div>
-                        <div className="text-sm text-gray-500">
-                          ${product.price}
-                        </div>
-                      </div>
-                    </Link>
-                  ))
-                ) : (
-                  <div className="p-2 text-gray-500">No products found.</div>
-                )}
-              </div>
-            )} */}
           </div>
 
           <button
@@ -525,36 +447,29 @@ export const ProductList = () => {
         )}
 
         {/* Products */}
-        <div className="grid gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4  grow-1 xl:grid-cols-4 ">
           {displayedProducts.length > 0 ? (
             displayedProducts.map((product) => (
+              <div className="hover:bg-white  hover:shadow-xl hover:shadow-gray-300 hover:rounded-sm  ">
+                <div >
               <div key={product.id} className="bg-white shadow rounded p-4">
                 <div className="flex justify-end items-center text-xs text-gray-500 mb-2">
-                  <button
-                    onClick={() => handleDeleteClick(product.id)}
-                    className="material-symbols-outlined text-red-500"
-                  >
-                    delete
-                  </button>
+                    <Trash2 size={18} onClick={() => handleDeleteClick(product.id)} color="red"/>
                 </div>
 
                 <Link to={`/products/${product.id}`} target="_top">
                   <img
                     src={product.thumbnail}
                     alt={product.title}
-                    className="w-full h-72 object-cover rounded mb-3"
+                    className="w-full h-60 object-cover rounded "
                   />
                 </Link>
-                <div className="flex items-center gap-1 text-gray-700">
+              </div>
+              <div>
+                <div className="m-2 flex items-center gap-1 text-gray-700">
                   <span className="text-[15px]">{product.rating}</span>
-                  <span
-                    className="material-icons text-blue-500"
-                    style={{ fontSize: "17px" }}
-                  >
-                    star
-                  </span>
-                  <span>|</span>
-                  <span>{product.reviews?.length ?? 0}</span>
+                  <Star size={15} className="text-blue-500 fill-blue-400"/>
+                  <span>| {product.reviews?.length ?? 0}</span>
                 </div>
 
                 <input
@@ -563,9 +478,9 @@ export const ProductList = () => {
                   onChange={(e) =>
                     handleTitleChange(product.id, e.target.value)
                   }
-                  className="font-semibold w-full border-none bg-gray-50 mb-2"
+                  className="font-semibold w-full border-none mb-2 pr-3 ml-2"
                 />
-                <div className="flex items-center space-x-2">
+                <div className="ml-2 flex items-center space-x-2">
                   <div className="flex items-center space-x-1">
                     <span className="font-semibold">$</span>
                     <input
@@ -601,13 +516,15 @@ export const ProductList = () => {
                   </span>
                 </div>
 
-                <div className="pt-5">
+                <div className="pt-2 ml-2 pb-2">
                   {product.stock < 20 && (
                     <span className="px-2 py-1 text-xs font-bold text-orange-600 bg-red-100 border border-red-200 rounded-full">
                       Only Few Left
                     </span>
                   )}
                 </div>
+              </div>
+              </div>
               </div>
             ))
           ) : (
@@ -656,12 +573,7 @@ export const ProductList = () => {
                 className=" ml-2 font-[600] text-lg "
                 onClick={() => setCurrentPage(1)}
               >
-                {" "}
-                <div className="p-0 m-0">
-                  <span class="material-symbols-outlined">
-                    keyboard_double_arrow_left
-                  </span>
-                </div>
+                <ChevronsLeft/>
                 Page:1
               </button>
               <button
@@ -674,9 +586,7 @@ export const ProductList = () => {
                   }
                 }}
               >
-                <span className="material-symbols-outlined align-middle">
-                  arrow_back_ios
-                </span>
+                <ChevronLeft/>
                 Previous
               </button>
               <span className="">
@@ -695,25 +605,9 @@ export const ProductList = () => {
                 }}
               >
                 Next
-                <span class="material-symbols-outlined align-middle">
-                  arrow_forward_ios
-                </span>
+               <ChevronRight/>
               </button>
             </div>
-            {/* {[...Array(totalPages).keys()].map((num) => {
-              const pageNum = num + 1;
-              return (<>
-                <button
-                  key={pageNum}
-                  onClick={() => setCurrentPage(pageNum)}
-                  disabled={pageNum === currentPage}
-                  className="p-2 m-2 w-12 mt-10 border rounded bg-blue-500 text-white hover:bg-blue-600  focus:bg-amber-400 transition duration-200"
-                >
-                  {pageNum}
-                </button>
-                </>
-              );
-            })} */}
           </div>
         )}
       </main>

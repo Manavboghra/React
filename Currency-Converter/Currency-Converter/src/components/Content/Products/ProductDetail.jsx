@@ -1,3 +1,4 @@
+import { Archive, CheckCircle, RefreshCw, Star, Truck } from "react-feather";
 import { Link, useLoaderData } from "react-router";
 
 export const ProductDetail = () => {
@@ -38,16 +39,12 @@ export const ProductDetail = () => {
             {/* Rating */}
             <div className="flex items-center">
               {[...Array(5)].map((_, index) => (
-                <span
-                  key={index}
+                <Star  key={index}
                   className={`material-icons text-lg ${
                     index < Math.round(product.rating)
-                      ? "text-yellow-500"
+                      ? "text-yellow-500 fill-amber-300"
                       : "text-gray-300"
-                  }`}
-                >
-                  star
-                </span>
+                  }`}/>
               ))}
               <span className="ml-2 text-lg font-medium text-gray-700">
                 {product.rating.toFixed(1)}
@@ -88,9 +85,7 @@ export const ProductDetail = () => {
             <div className="space-y-3">
               {/* Warranty */}
               <div className="flex items-start">
-                <span className="material-icons text-blue-500 mr-2">
-                  verified_user
-                </span>
+                <CheckCircle className="mr-2 text-blue-500"/>
                 <p className="text-gray-700">
                   <span className="font-semibold">Warranty:</span>{" "}
                   {product.warrantyInformation}
@@ -99,9 +94,7 @@ export const ProductDetail = () => {
 
               {/* Shipping */}
               <div className="flex items-start">
-                <span className="material-icons text-green-500 mr-2">
-                  local_shipping
-                </span>
+                <Truck className="text-green-500 mr-2 " />
                 <p className="text-gray-700">
                   <span className="font-semibold">Shipping:</span>{" "}
                   {product.shippingInformation}
@@ -110,15 +103,11 @@ export const ProductDetail = () => {
 
               {/* Availability */}
               <div className="flex items-start">
-                <span
-                  className={`material-icons mr-2 ${
+                <Archive className={`mr-2 ${
                     product.availabilityStatus.toLowerCase() === "in stock"
                       ? "text-green-500"
                       : "text-red-500"
-                  }`}
-                >
-                  inventory_2
-                </span>
+                  }`}/>
                 <p className="text-gray-700">
                   <span className="font-semibold">Availability:</span>{" "}
                   {product.availabilityStatus}
@@ -127,15 +116,11 @@ export const ProductDetail = () => {
 
               {/* Return Policy */}
               <div className="flex items-start">
-                <span
-                  className={`material-icons mr-2 ${
+                <RefreshCw className={`mr-2 ${
                     product.returnPolicy.toLowerCase() == "no return policy"
                       ? "text-red-500"
                       : "text-green-500"
-                  }`}
-                >
-                  inventory_2
-                </span>
+                  }`}/>
                 <p className="text-gray-700">
                   <span className="font-semibold">Return Policy:</span>{" "}
                   {product.returnPolicy}
@@ -176,17 +161,13 @@ export const ProductDetail = () => {
 
                 {/* Rating Stars */}
                 <div className="flex items-center mb-2">
-                  {[...Array(5)].map((_, starIndex) => (
-                    <span
-                      key={starIndex}
-                      className={`material-icons text-lg ${
-                        starIndex < review.rating
-                          ? "text-yellow-500"
-                          : "text-gray-300"
-                      }`}
-                    >
-                      star
-                    </span>
+                  {[...Array(5)].map((_, index) => (
+                    <Star  key={index}
+                  className={`material-icons text-lg ${
+                    index < Math.round(product.rating)
+                      ? "text-yellow-500 fill-amber-300"
+                      : "text-gray-300"
+                  }`}/>
                   ))}
                   <span className="ml-2 text-sm text-gray-600">
                     {review.rating} / 5
