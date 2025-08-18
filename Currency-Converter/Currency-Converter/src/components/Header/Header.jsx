@@ -6,9 +6,8 @@ const Header = () => {
     <header className="bg-gray-800 shadow-lg sticky top-0 z-10">
       <nav className="container mx-auto px-6 py-4 flex justify-between items-center">
         <Link to={"/"}>
-          {" "}
           <div className="text-2xl font-bold text-blue-400">CurrencyApp</div>
-        </Link>
+        </  Link>
         <div className="flex items-center space-x-6">
           <NavLink
             to={"/"}

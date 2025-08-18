@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
-import { CreateTask } from "./Operation/CreateTask";
-import { useDebounce } from "./Hook/useDebounce"; 
+import { useDebounce } from "../../hooks/useDebounce"; // Import hook
+import {CreateTask} from "./CreateTask"
 import { Trash2, ChevronLeft, ChevronRight, ChevronsLeft, Star} from 'react-feather';
 
 export const ProductList = () => {
@@ -22,8 +22,10 @@ export const ProductList = () => {
     };
   };
 
+  // State
   const [search, setSearch] = useState(getFiltersFromURL().search);
-  const debouncedSearch = useDebounce(search, 500); 
+  const debouncedSearch = useDebounce(search, 500); // ✅ debounce only the search term
+
   const [filterValue, setFilterValue] = useState(getFiltersFromURL().filterValue);
   const [category, setCategory] = useState(getFiltersFromURL().category);
   const [minPrice, setMinPrice] = useState(getFiltersFromURL().minPrice);
@@ -78,7 +80,7 @@ export const ProductList = () => {
     navigate,
   ]);
 
-  //Fetch data 
+  // === Fetch data once ===
   useEffect(() => {
     fetch("https://dummyjson.com/products?limit=1000")
       .then((res) => res.json())
@@ -90,7 +92,7 @@ export const ProductList = () => {
       });
   }, []);
 
-  // Filtering function
+  // === Filtering function (use debouncedSearch instead of search) ===
   const getDisplayedProducts = () => {
     let list = allProducts;
 
@@ -132,7 +134,7 @@ export const ProductList = () => {
     setIsToggleCancel(true);
   };
 
-  // Delete
+  //Ask for delete
   const confirmDelete = () => {
     setAllProducts((prev) => prev.filter((product) => product.id !== deleteId));
     setIsToggleCancel(false);
@@ -154,7 +156,7 @@ export const ProductList = () => {
     setIsToggle(!isToggle);
   };
 
-  //Category Change
+  //Trigger when category Change
   const handleCategoryChange = (e) => {
     const { value, checked } = e.target;
     setCategory((prev) =>
@@ -163,7 +165,7 @@ export const ProductList = () => {
     setCurrentPage(1);
   };
 
-  //value filters
+  //For filters
   const handleSetPrice = (min, max) => {
     setMinPrice(Number(min));
     setMaxPrice(Number(max));
@@ -222,7 +224,7 @@ export const ProductList = () => {
 
     return list;
   };
-// clear filters
+
   const handleClearAll = () => {
     setSearch("");
     setFilterValue("featured");
@@ -454,7 +456,7 @@ export const ProductList = () => {
                     <Trash2 size={18} onClick={() => handleDeleteClick(product.id)} color="red"/>
                 </div>
 
-                <Link to={`/products/${product.id}`} target="_top">
+                <Link to={`/Mens/${product.id}`} target="_top">
                   <img
                     src={product.thumbnail}
                     loading="lazy"

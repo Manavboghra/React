@@ -44,7 +44,7 @@ const router = createBrowserRouter([
         loader: ProductDetailLoader,
         path: "/products/:productId",
         element: <ProductDetail />,
-      },
+      }
       
     ],
   },
