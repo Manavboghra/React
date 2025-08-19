@@ -16,6 +16,9 @@ import Products from "./pages/Products";
 import ContactForm from "./component/ContactForm";
 import ContactDetails from "./component/ContactDetails";
 import ContactLayout from "./layout/ContactLayout";
+import PageNotFound from "./component/PageNotFound";
+import JobLayout from "./layout/JobLayout";
+import Jobs, { jobsLoader } from "./component/Jobs";
 
 function App() {
   const router = createBrowserRouter(
@@ -28,6 +31,10 @@ function App() {
         </Route>
         <Route path="about" element={<About />} />
         <Route path="products" element={<Products />} />
+        <Route path="*" element={<PageNotFound />} />
+        <Route path="jobs"  element={<JobLayout />}>
+          <Route index element={<Jobs />}loader={jobsLoader} />
+        </Route>
       </Route>
     )
   );

@@ -1,0 +1,31 @@
+{
+    "jobs":[
+        {
+            "id":1,
+            "title":"Sr.React Developer",
+            "salary":600000,
+            "location": "Ahmedabad"
+        },
+        {
+            "id":2,
+            "title":"Frontend Developer",
+            "salary":40000,
+            "location": "Mumbai"
+        },{
+            "id":3,
+            "title":"Fullstack Developer",
+            "salary":60000,
+            "location": "Banglore"
+        },{
+            "id":4,
+            "title":"Product MAnager",
+            "salary":70000,
+            "location": "China"
+        },{
+            "id":5,
+            "title":"UI Designer",
+            "salary":70000,
+            "location": "USA"
+        }
+    ]
+}
