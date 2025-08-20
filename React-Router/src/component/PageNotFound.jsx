@@ -4,10 +4,11 @@ import { useNavigate } from 'react-router-dom'
 const PageNotFound = () => {
     const navigator = useNavigate()
   return (
-    <div>
-    <div className='text-6xl text-center mt-auto pt-36'>404-PageNotFound</div>
-    <button onClick={()=>navigator("/")}>Go to Home</button>
+     <div className='flex flex-col items-center  mt-27 gap-4'>
+    <div className='text-6xl text-center '>404-Page Not Found</div>
+    <button onClick={()=>navigator("/")} className='bg-gray-400  border-2 p-2'>Go to Home Page</button>
     </div>
+
     
   )
 }

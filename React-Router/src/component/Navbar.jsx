@@ -11,13 +11,13 @@ const Navbar = () => {
              <NavLink to={"/products"} className={({isActive})=>isActive&&"text-red-500"}><li className='p-5 m-2 font-sans font-bold'>Products</li></NavLink>
              <NavLink to={"/about"} className={({isActive})=>isActive&&"text-red-500"}><li className='p-5 m-2 font-sans font-bold'>About</li></NavLink>
              <NavLink to={"/contact"} className={({isActive})=>isActive&&"text-red-500"}><li className='p-5 m-2 font-sans font-bold'>Contact</li></NavLink>
+             <NavLink to={"/jobs"} className={({isActive})=>isActive&&"text-red-500"}><li className='p-5 m-2 font-sans font-bold'>Jobs</li></NavLink>
         </ul>
 
         <button
          className='mr-8 pb-1 hover:bg-gray-600 h-8 bg-gray-700 text-white w-28 border-2 rounded-2xl'
          onClick={()=>navigator("about")}
          >
-          
           Get Started
         </button>
     </div>
